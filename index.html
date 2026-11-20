@@ -90,13 +90,11 @@
   const firebaseConfig={apiKey:'AIzaSyBIPvW2qGz7LWF6-G3Owxbz-pmQPZHGFig',authDomain:'dai4-dian3-ming2.firebaseapp.com',projectId:'dai4-dian3-ming2',storageBucket:'dai4-dian3-ming2.firebasestorage.app',messagingSenderId:'295245992684',appId:'1:295245992684:web:1f9a67a17989eef66c0bc9'};
   async function startFirebaseAuth(){
     try {
-      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,getRedirectResult,signOut,setPersistence,browserLocalPersistence}]=await Promise.all([
+      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut}]=await Promise.all([
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js')
       ]);
       const app=initializeApp(firebaseConfig),auth=getAuth(app),provider=new GoogleAuthProvider();
-      const persistenceReady=setPersistence(auth,browserLocalPersistence);
-      persistenceReady.catch(error=>console.warn('Auth persistence setup failed; Firebase default persistence will be used.',error));
       provider.setCustomParameters({prompt:'select_account'});
       const firebaseAuthConfigMessage=error=>{
         const map={'auth/unauthorized-domain':'Firebase 未授權目前網站網域。請確認你是從 https://youlinu0.github.io/-app1002/ 開啟，並在 Firebase Authentication 的授權網域加入 youlinu0.github.io。','auth/operation-not-allowed':'Firebase Authentication 尚未啟用 Google 登入提供者。','auth/invalid-api-key':'Firebase Web API key 無效，請核對 Firebase Web App 設定。','auth/invalid-oauth-client-id':'Google OAuth 用戶端設定無效，請核對 Firebase 的 Google 登入設定。','auth/network-request-failed':'連線 Firebase 失敗；請檢查網路、廣告阻擋或隱私擴充功能。'};
@@ -104,7 +102,6 @@
       };
       $('#signInBtn').addEventListener('click',async()=>{
         try {
-          await setPersistence(auth,browserLocalPersistence);
           const credential=await signInWithPopup(auth,provider);
           updateAuthUI(credential.user);
           currentUserId=credential.user.uid;
@@ -114,16 +111,9 @@
           showToast('Google 登入成功，歡迎回來！');
         } catch(error) {
           console.error('Google sign-in failed',error);
-          const popupUnavailable=['auth/popup-blocked','auth/web-storage-unsupported','auth/operation-not-supported-in-this-environment'].includes(error.code);
-          if(popupUnavailable){
-            try {
-              await setPersistence(auth,browserLocalPersistence);
-              await signInWithRedirect(auth,provider);
-              return;
-            } catch(redirectError) {
-              await showFirebaseDiagnostic(redirectError,'整頁跳轉登入');
-              return;
-            }
+          if(error.code==='auth/popup-blocked'){
+            showToast('登入視窗遭封鎖。請在瀏覽器網址列旁允許此網站開啟彈出視窗，再按登入。');
+            return;
           }
           if(error.code==='auth/unauthorized-domain'||error.code==='auth/operation-not-allowed'||error.code==='auth/invalid-api-key'||error.code==='auth/invalid-oauth-client-id'){
             showToast(firebaseAuthConfigMessage(error));
@@ -140,20 +130,6 @@
         posted=JSON.parse(localStorage.getItem('classmatePosted:'+((user&&user.uid)||'guest'))||'[]');
         render();
       });
-      const redirectStartup=setPersistence(auth,browserLocalPersistence).then(()=>getRedirectResult(auth));
-      try {
-        const result=await redirectStartup;
-        if(result?.user){updateAuthUI(result.user);currentUserId=result.user.uid;showToast('Google 登入成功，歡迎回來！')}else{await showFirebaseDiagnostic({code:'redirect-result-empty',message:'Google 頁面已返回，但 Firebase 沒收到成功的登入結果。這通常與跨網站儲存限制或 authDomain／OAuth redirect URI 不匹配有關。'},'讀取跳轉登入結果')}
-      } catch(error) {
-        console.error('Google redirect result failed',error);
-        const messages={
-          'auth/unauthorized-domain':'登入來源或回跳網域未授權。請確認使用 GitHub Pages 網址，且 Firebase 已授權 youlinu0.github.io。',
-          'auth/operation-not-allowed':'Firebase 尚未啟用 Google 登入提供者。',
-          'auth/redirect-cancelled-by-user':'登入已取消。',
-          'auth/network-request-failed':'網路連線失敗，請重新載入後再試。'
-        };
-        await showFirebaseDiagnostic(error,'讀取跳轉登入結果');
-      }
     } catch(error) { await showFirebaseDiagnostic(error,'初始化'); }
   }
   render();updateAuthUI(null);startFirebaseAuth();
