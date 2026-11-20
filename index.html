@@ -90,7 +90,7 @@
   const firebaseConfig={apiKey:'AIzaSyBIPvW2qGz7LWF6-G3Owxbz-pmQPZHGFig',authDomain:'dai4-dian3-ming2.firebaseapp.com',projectId:'dai4-dian3-ming2',storageBucket:'dai4-dian3-ming2.firebasestorage.app',messagingSenderId:'295245992684',appId:'1:295245992684:web:1f9a67a17989eef66c0bc9'};
   async function startFirebaseAuth(){
     try {
-      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,getRedirectResult,signOut,setPersistence,browserLocalPersistence}]=await Promise.all([
+      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,getRedirectResult,signOut,setPersistence,browserLocalPersistence}]=await Promise.all([
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js')
       ]);
