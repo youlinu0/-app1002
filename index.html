@@ -78,10 +78,12 @@
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js')
       ]);
       const app=initializeApp(firebaseConfig),auth=getAuth(app),provider=new GoogleAuthProvider();
-      await setPersistence(auth,browserLocalPersistence);
+      const persistenceReady=setPersistence(auth,browserLocalPersistence);
+      persistenceReady.catch(error=>console.warn('Auth persistence setup failed; Firebase default persistence will be used.',error));
       provider.setCustomParameters({prompt:'select_account'});
-            $('#signInBtn').addEventListener('click',async()=>{
+      $('#signInBtn').addEventListener('click',async()=>{
         try {
+          await persistenceReady;
           const credential=await signInWithPopup(auth,provider);
           updateAuthUI(credential.user);
           currentUserId=credential.user.uid;
