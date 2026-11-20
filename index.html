@@ -104,7 +104,7 @@
       };
       $('#signInBtn').addEventListener('click',async()=>{
         try {
-          await persistenceReady;
+          await setPersistence(auth,browserLocalPersistence);
           const credential=await signInWithPopup(auth,provider);
           updateAuthUI(credential.user);
           currentUserId=credential.user.uid;
@@ -117,6 +117,7 @@
           const popupUnavailable=['auth/popup-blocked','auth/web-storage-unsupported','auth/operation-not-supported-in-this-environment'].includes(error.code);
           if(popupUnavailable){
             try {
+              await setPersistence(auth,browserLocalPersistence);
               await signInWithRedirect(auth,provider);
               return;
             } catch(redirectError) {
@@ -139,8 +140,9 @@
         posted=JSON.parse(localStorage.getItem('classmatePosted:'+((user&&user.uid)||'guest'))||'[]');
         render();
       });
+      const redirectStartup=setPersistence(auth,browserLocalPersistence).then(()=>getRedirectResult(auth));
       try {
-        const result=await getRedirectResult(auth);
+        const result=await redirectStartup;
         if(result?.user){updateAuthUI(result.user);currentUserId=result.user.uid;showToast('Google 登入成功，歡迎回來！')}else{await showFirebaseDiagnostic({code:'redirect-result-empty',message:'Google 頁面已返回，但 Firebase 沒收到成功的登入結果。這通常與跨網站儲存限制或 authDomain／OAuth redirect URI 不匹配有關。'},'讀取跳轉登入結果')}
       } catch(error) {
         console.error('Google redirect result failed',error);
