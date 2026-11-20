@@ -81,6 +81,10 @@
       const persistenceReady=setPersistence(auth,browserLocalPersistence);
       persistenceReady.catch(error=>console.warn('Auth persistence setup failed; Firebase default persistence will be used.',error));
       provider.setCustomParameters({prompt:'select_account'});
+      const firebaseAuthConfigMessage=error=>{
+        const map={'auth/unauthorized-domain':'Firebase 未授權目前網站網域。請確認你是從 https://youlinu0.github.io/-app1002/ 開啟，並在 Firebase Authentication 的授權網域加入 youlinu0.github.io。','auth/operation-not-allowed':'Firebase Authentication 尚未啟用 Google 登入提供者。','auth/invalid-api-key':'Firebase Web API key 無效，請核對 Firebase Web App 設定。','auth/invalid-oauth-client-id':'Google OAuth 用戶端設定無效，請核對 Firebase 的 Google 登入設定。','auth/network-request-failed':'連線 Firebase 失敗；請檢查網路、廣告阻擋或隱私擴充功能。'};
+        return map[error?.code]||`Firebase 登入失敗（${error?.code||'未知錯誤'}）。請確認 Firebase 專案與授權網域設定。`;
+      };
       $('#signInBtn').addEventListener('click',async()=>{
         try {
           await persistenceReady;
@@ -100,12 +104,16 @@
               return;
             } catch(redirectError) {
               console.error('Google redirect sign-in failed',redirectError);
-              showToast('彈出登入不可用，改用整頁登入也未能開始：'+(redirectError.code||'請確認授權網域與 Firebase 設定。'));
+              showToast('改用整頁登入仍失敗：'+firebaseAuthConfigMessage(redirectError));
               return;
             }
           }
-          const messages={'auth/unauthorized-domain':'此網站網域尚未加入 Firebase 授權網域。','auth/popup-closed-by-user':'登入視窗已關閉；如尚未完成 Google 授權，請重新登入。','auth/cancelled-popup-request':'已有登入視窗開啟，請在該視窗完成登入。','auth/network-request-failed':'網路連線失敗，請重新載入後再試。'};
-          showToast(messages[error.code]||'Google 登入失敗：'+(error.code||'未知錯誤'));
+          if(error.code==='auth/unauthorized-domain'||error.code==='auth/operation-not-allowed'||error.code==='auth/invalid-api-key'||error.code==='auth/invalid-oauth-client-id'){
+            showToast(firebaseAuthConfigMessage(error));
+            return;
+          }
+          const messages={'auth/popup-closed-by-user':'登入視窗已關閉；如尚未完成 Google 授權，請重新登入。','auth/cancelled-popup-request':'已有登入視窗開啟，請在該視窗完成登入。','auth/network-request-failed':'連線失敗，請確認網路或暫停廣告阻擋／隱私擴充功能後再試。'};
+          showToast(messages[error.code]||firebaseAuthConfigMessage(error));
         }
       });
       $('#topAvatar').addEventListener('click',()=>{if(!authUser)$('#signInBtn').click()});
