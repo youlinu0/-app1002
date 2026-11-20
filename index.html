@@ -73,15 +73,27 @@
   const firebaseConfig={apiKey:'AIzaSyBIPvW2qGz7LWF6-G3Owxbz-pmQPZHGFig',authDomain:'dai4-dian3-ming2.firebaseapp.com',projectId:'dai4-dian3-ming2',storageBucket:'dai4-dian3-ming2.firebasestorage.app',messagingSenderId:'295245992684',appId:'1:295245992684:web:1f9a67a17989eef66c0bc9'};
   async function startFirebaseAuth(){
     try {
-      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithRedirect,onAuthStateChanged,getRedirectResult,signOut}]=await Promise.all([
+      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,getRedirectResult,signOut,setPersistence,browserLocalPersistence}]=await Promise.all([
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js')
       ]);
       const app=initializeApp(firebaseConfig),auth=getAuth(app),provider=new GoogleAuthProvider();
+      await setPersistence(auth,browserLocalPersistence);
       provider.setCustomParameters({prompt:'select_account'});
-      $('#signInBtn').addEventListener('click',async()=>{
-        try { await signInWithRedirect(auth,provider); }
-        catch(error) { console.error('Google sign-in failed',error); showToast(error.code==='auth/unauthorized-domain'?'此網站網域尚未加入 Firebase 授權網域。':'無法開始 Google 登入，請確認網路與 Firebase 設定後重試。'); }
+            $('#signInBtn').addEventListener('click',async()=>{
+        try {
+          const credential=await signInWithPopup(auth,provider);
+          updateAuthUI(credential.user);
+          currentUserId=credential.user.uid;
+          myTasks=JSON.parse(localStorage.getItem('classmateMine:'+credential.user.uid)||'[]');
+          posted=JSON.parse(localStorage.getItem('classmatePosted:'+credential.user.uid)||'[]');
+          render();
+          showToast('Google 登入成功，歡迎回來！');
+        } catch(error) {
+          console.error('Google sign-in failed',error);
+          const messages={'auth/unauthorized-domain':'此網站網域尚未加入 Firebase 授權網域。','auth/popup-blocked':'登入視窗遭瀏覽器封鎖，請允許此網站開啟彈出式視窗後重試。','auth/popup-closed-by-user':'登入視窗已關閉；如尚未完成 Google 授權，請重新登入。','auth/cancelled-popup-request':'已有登入視窗開啟，請在該視窗完成登入。','auth/network-request-failed':'網路連線失敗，請重新載入後再試。'};
+          showToast(messages[error.code]||'Google 登入失敗：'+(error.code||'未知錯誤'));
+        }
       });
       $('#topAvatar').addEventListener('click',()=>{if(!authUser)$('#signInBtn').click()});
       $('#signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(error){console.error(error);showToast('登出失敗，請稍後重試。')}});
