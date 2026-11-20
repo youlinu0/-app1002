@@ -141,7 +141,7 @@
       });
       try {
         const result=await getRedirectResult(auth);
-        if(result?.user){updateAuthUI(result.user);currentUserId=result.user.uid;showToast('Google 登入成功，歡迎回來！')}
+        if(result?.user){updateAuthUI(result.user);currentUserId=result.user.uid;showToast('Google 登入成功，歡迎回來！')}else{await showFirebaseDiagnostic({code:'redirect-result-empty',message:'Google 頁面已返回，但 Firebase 沒收到成功的登入結果。這通常與跨網站儲存限制或 authDomain／OAuth redirect URI 不匹配有關。'},'讀取跳轉登入結果')}
       } catch(error) {
         console.error('Google redirect result failed',error);
         const messages={
@@ -150,7 +150,7 @@
           'auth/redirect-cancelled-by-user':'登入已取消。',
           'auth/network-request-failed':'網路連線失敗，請重新載入後再試。'
         };
-        showToast(messages[error.code]||'Google 登入未完成：'+(error.code||'未知錯誤'));
+        await showFirebaseDiagnostic(error,'讀取跳轉登入結果');
       }
     } catch(error) { await showFirebaseDiagnostic(error,'初始化'); }
   }
