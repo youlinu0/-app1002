@@ -91,7 +91,18 @@
           showToast('Google 登入成功，歡迎回來！');
         } catch(error) {
           console.error('Google sign-in failed',error);
-          const messages={'auth/unauthorized-domain':'此網站網域尚未加入 Firebase 授權網域。','auth/popup-blocked':'登入視窗遭瀏覽器封鎖，請允許此網站開啟彈出式視窗後重試。','auth/popup-closed-by-user':'登入視窗已關閉；如尚未完成 Google 授權，請重新登入。','auth/cancelled-popup-request':'已有登入視窗開啟，請在該視窗完成登入。','auth/network-request-failed':'網路連線失敗，請重新載入後再試。'};
+          const popupUnavailable=['auth/popup-blocked','auth/web-storage-unsupported','auth/operation-not-supported-in-this-environment'].includes(error.code);
+          if(popupUnavailable){
+            try {
+              await signInWithRedirect(auth,provider);
+              return;
+            } catch(redirectError) {
+              console.error('Google redirect sign-in failed',redirectError);
+              showToast('彈出登入不可用，改用整頁登入也未能開始：'+(redirectError.code||'請確認授權網域與 Firebase 設定。'));
+              return;
+            }
+          }
+          const messages={'auth/unauthorized-domain':'此網站網域尚未加入 Firebase 授權網域。','auth/popup-closed-by-user':'登入視窗已關閉；如尚未完成 Google 授權，請重新登入。','auth/cancelled-popup-request':'已有登入視窗開啟，請在該視窗完成登入。','auth/network-request-failed':'網路連線失敗，請重新載入後再試。'};
           showToast(messages[error.code]||'Google 登入失敗：'+(error.code||'未知錯誤'));
         }
       });
