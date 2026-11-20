@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    .auth-diagnostic{margin:0 0 18px;padding:14px 16px;border:1px solid #e3b8a7;border-radius:12px;background:#fff2ec;color:#8d3d2b;font-size:12px;line-height:1.7;overflow-wrap:anywhere}.auth-diagnostic[hidden]{display:none}
     :root{--ink:#202a24;--muted:#7d8980;--paper:#f6f7f2;--white:#fff;--line:#e8ebe3;--green:#23664e;--green2:#e8f2eb;--orange:#ec835c;--yellow:#f5d878;--shadow:0 16px 42px #233d3012}
     *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans','Noto Sans TC',sans-serif;min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh;max-width:1600px;margin:auto}.sidebar{background:#fff;border-right:1px solid var(--line);padding:30px 20px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:11px;padding:2px 12px 36px;font-weight:800;font-size:19px;letter-spacing:-.6px}.logo{width:36px;height:36px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:white;font-size:20px}.brand small{display:block;color:#a0a9a1;font-size:9px;font-weight:600;letter-spacing:1.6px;margin-top:2px}.nav-label{font-size:10px;font-weight:700;color:#adb6ae;letter-spacing:1.2px;padding:0 13px 10px}.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#778078;border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:12px;text-align:left;font-weight:600;font-size:13px}.nav button.active{background:var(--green2);color:var(--green)}.nav .ico{font-size:17px;width:21px;text-align:center}.nav .count{margin-left:auto;background:#fff;border:1px solid var(--line);padding:2px 7px;border-radius:20px;font-size:10px}.side-bottom{margin-top:auto}.profile{display:flex;align-items:center;gap:10px;padding:16px 10px 0;border-top:1px solid var(--line);margin-top:26px}.avatar{width:36px;height:36px;border-radius:50%;background:#f4d7be;color:#8c5935;display:grid;place-items:center;font-size:13px;font-weight:700}.profile strong{font-size:12px;display:block}.profile small{font-size:10px;color:var(--muted)}.more{margin-left:auto;color:#9aa39b}
     main{min-width:0;padding:28px clamp(22px,4vw,58px) 60px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}.crumb{font-size:12px;color:#939c94}.crumb b{color:var(--ink);font-weight:600}.top-actions{display:flex;gap:14px;align-items:center}.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#737e75;position:relative}.dot{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--orange);right:7px;top:7px;border:1px solid white}.top-avatar{width:34px;height:34px;border:0;border-radius:50%;background:#f4d7be;display:grid;place-items:center;font-size:12px;font-weight:700;color:#8c5935}.google-login{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:700;color:#3f4b42}.google-g{font-family:Arial,sans-serif;font-weight:700;color:#4285f4;font-size:16px}.auth-signout{border:0;background:transparent;font-size:10px;font-weight:700;color:var(--green)}.profile-photo{object-fit:cover}.mobile-brand{display:none}.hero{background:#eaf1e8;border-radius:24px;padding:34px 38px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;margin-bottom:29px;min-height:205px}.hero:after{content:'';position:absolute;width:245px;height:245px;border:1px solid #cbdccc;border-radius:50%;right:39px;top:-97px;box-shadow:0 0 0 22px #dbe8dc,0 0 0 47px #e0ebdf}.hero-copy{position:relative;z-index:1}.eyebrow{font-size:10px;letter-spacing:1.5px;color:var(--green);font-weight:700;text-transform:uppercase;display:flex;gap:8px;align-items:center}.eyebrow i{width:6px;height:6px;border-radius:50%;background:#73a17e}.hero h1{font-size:28px;line-height:1.35;letter-spacing:-.8px;margin:11px 0 7px}.hero p{color:#718078;font-size:12px;margin:0}.hero-art{position:relative;z-index:1;margin-right:60px;width:130px;height:130px;display:grid;place-items:center}.art-circle{width:106px;height:106px;border-radius:50%;background:#d5e5d7;display:grid;place-items:center;font-size:54px;transform:rotate(-7deg)}.art-spark{position:absolute;right:2px;top:5px;font-size:22px;color:#d3925d}.art-note{position:absolute;bottom:2px;left:1px;background:#fff;border-radius:10px;padding:8px 10px;font-size:9px;font-weight:700;box-shadow:var(--shadow);transform:rotate(-5deg)}
@@ -27,6 +28,7 @@
     <div class="side-bottom"><div class="nav-label">支援</div><nav class="nav"><button id="rulesBtn"><span class="ico">ⓘ</span>使用須知</button></nav><div class="profile"><div class="avatar" id="profileAvatar">訪</div><div><strong id="profileName">訪客</strong><small id="profileEmail">登入後開始互助</small></div><button class="more auth-signout" id="signOutBtn" type="button" hidden>登出</button></div></div>
   </aside>
   <main>
+    <div id="authDiagnostic" class="auth-diagnostic" role="alert" hidden></div>
     <div class="topbar"><div class="crumb">工作空間　/　<b id="crumbTitle">探索任務</b></div><div class="mobile-brand"><div class="logo">↗</div>同學伴</div><div class="top-actions"><button class="icon-btn" id="helpBtn" title="使用須知">? </button><button class="google-login" id="signInBtn" type="button"><span class="google-g">G</span><span>使用 Google 登入</span></button><button class="top-avatar" id="topAvatar" type="button" title="登入 Google 帳號">訪</button></div></div>
     <section class="hero"><div class="hero-copy"><div class="eyebrow"><i></i> CAMPUS CLASSMATE SUPPORT</div><h1>課堂路上，<br>有人一起更安心。</h1><p>找位同學陪你到教室，或在到課後一起解決簽到小狀況。</p></div><div class="hero-art"><span class="art-spark">✦</span><div class="art-circle">🎒</div><div class="art-note">一起到課，互相照應</div></div></section>
     <div class="section-head"><div><h2 id="listTitle">附近的互助任務</h2><p id="listSub">看看同學需要什麼幫忙，選一個你能協助的任務。</p></div><button class="filter" id="postBtn">＋ 發布任務</button></div>
@@ -70,6 +72,21 @@
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.modal-backdrop').classList.remove('show')));document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
   function rules(){ $('#rulesModal').classList.add('show') }$('#rulesBtn').addEventListener('click',rules);$('#helpBtn').addEventListener('click',rules);$('#howBtn').addEventListener('click',rules);$('#noticeLink').addEventListener('click',e=>{e.preventDefault();rules()});
   render();
+  async function showFirebaseDiagnostic(error,stage){
+    console.error(`Firebase ${stage} failed`,error);
+    const code=error?.code||'unknown';
+    let detail=`登入階段：${stage}；錯誤代碼：${code}`;
+    if(code==='auth/unauthorized-domain')detail+='。請在 Firebase Authentication → 設定 → 已授權的網域加入 youlinu0.github.io。';
+    else if(code==='auth/operation-not-allowed')detail+='。請在 Firebase Authentication → Sign-in method 啟用 Google。';
+    else if(code==='auth/invalid-api-key')detail+='。目前頁面的 Firebase API key 無效，請比對 Firebase Web App 設定。';
+    else if(code==='auth/invalid-oauth-client-id')detail+='。Firebase 的 Google OAuth 用戶端設定不正確。';
+    else if(code==='auth/network-request-failed')detail+='。請檢查網路、VPN、DNS 或隱私／廣告阻擋擴充功能。';
+    else if(code==='auth/popup-blocked'||code==='auth/web-storage-unsupported')detail+='。瀏覽器環境不支援登入視窗或儲存，將嘗試整頁登入。';
+    else detail+=`。${error?.message||'請檢查 Firebase 專案與 Google OAuth 設定。'}`;
+    const box=$('#authDiagnostic');
+    if(box){box.textContent=detail;box.hidden=false;}
+    showToast(detail);
+  }
   const firebaseConfig={apiKey:'AIzaSyBIPvW2qGz7LWF6-G3Owxbz-pmQPZHGFig',authDomain:'dai4-dian3-ming2.firebaseapp.com',projectId:'dai4-dian3-ming2',storageBucket:'dai4-dian3-ming2.firebasestorage.app',messagingSenderId:'295245992684',appId:'1:295245992684:web:1f9a67a17989eef66c0bc9'};
   async function startFirebaseAuth(){
     try {
@@ -103,8 +120,7 @@
               await signInWithRedirect(auth,provider);
               return;
             } catch(redirectError) {
-              console.error('Google redirect sign-in failed',redirectError);
-              showToast('改用整頁登入仍失敗：'+firebaseAuthConfigMessage(redirectError));
+              await showFirebaseDiagnostic(redirectError,'整頁跳轉登入');
               return;
             }
           }
@@ -112,8 +128,7 @@
             showToast(firebaseAuthConfigMessage(error));
             return;
           }
-          const messages={'auth/popup-closed-by-user':'登入視窗已關閉；如尚未完成 Google 授權，請重新登入。','auth/cancelled-popup-request':'已有登入視窗開啟，請在該視窗完成登入。','auth/network-request-failed':'連線失敗，請確認網路或暫停廣告阻擋／隱私擴充功能後再試。'};
-          showToast(messages[error.code]||firebaseAuthConfigMessage(error));
+          await showFirebaseDiagnostic(error,'Google OAuth');
         }
       });
       $('#topAvatar').addEventListener('click',()=>{if(!authUser)$('#signInBtn').click()});
@@ -137,7 +152,7 @@
         };
         showToast(messages[error.code]||'Google 登入未完成：'+(error.code||'未知錯誤'));
       }
-    } catch(error) { console.error('Firebase initialization failed',error); showToast('Firebase 登入模組載入失敗；請使用 HTTPS 網站網址。'); }
+    } catch(error) { await showFirebaseDiagnostic(error,'初始化'); }
   }
   render();updateAuthUI(null);startFirebaseAuth();
 </script>
