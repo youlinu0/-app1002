@@ -71,7 +71,41 @@
   function rules(){ $('#rulesModal').classList.add('show') }$('#rulesBtn').addEventListener('click',rules);$('#helpBtn').addEventListener('click',rules);$('#howBtn').addEventListener('click',rules);$('#noticeLink').addEventListener('click',e=>{e.preventDefault();rules()});
   render();
   const firebaseConfig={apiKey:'AIzaSyBIPvW2qGz7LWF6-G3Owxbz-pmQPZHGFig',authDomain:'dai4-dian3-ming2.firebaseapp.com',projectId:'dai4-dian3-ming2',storageBucket:'dai4-dian3-ming2.firebasestorage.app',messagingSenderId:'295245992684',appId:'1:295245992684:web:1f9a67a17989eef66c0bc9'};
-  async function startFirebaseAuth(){try{const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithRedirect,onAuthStateChanged,signOut}]=await Promise.all([import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js')]);const app=initializeApp(firebaseConfig),auth=getAuth(app),provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});$('#signInBtn').addEventListener('click',async()=>{try{await signInWithRedirect(auth,provider)}catch(error){console.error('Google sign-in failed',error);showToast(error.code==='auth/unauthorized-domain'?'此網站網域尚未加入 Firebase 授權網域。':'無法開始 Google 登入，請確認網路與 Firebase 設定後重試。')}});$('#topAvatar').addEventListener('click',()=>{if(!authUser)$('#signInBtn').click()});$('#signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(error){console.error(error);showToast('登出失敗，請稍後重試。')}});onAuthStateChanged(auth,user=>{updateAuthUI(user);currentUserId=user?.uid||null;myTasks=JSON.parse(localStorage.getItem('classmateMine:'+((user&&user.uid)||'guest'))||'[]');posted=JSON.parse(localStorage.getItem('classmatePosted:'+((user&&user.uid)||'guest'))||'[]');render()})}catch(error){console.error('Firebase initialization failed',error);showToast('Firebase 登入模組載入失敗；請用 http://localhost 或正式網站網址開啟。')}}
+  async function startFirebaseAuth(){
+    try {
+      const [{initializeApp},{getAuth,GoogleAuthProvider,signInWithRedirect,onAuthStateChanged,getRedirectResult,signOut}]=await Promise.all([
+        import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js')
+      ]);
+      const app=initializeApp(firebaseConfig),auth=getAuth(app),provider=new GoogleAuthProvider();
+      provider.setCustomParameters({prompt:'select_account'});
+      $('#signInBtn').addEventListener('click',async()=>{
+        try { await signInWithRedirect(auth,provider); }
+        catch(error) { console.error('Google sign-in failed',error); showToast(error.code==='auth/unauthorized-domain'?'此網站網域尚未加入 Firebase 授權網域。':'無法開始 Google 登入，請確認網路與 Firebase 設定後重試。'); }
+      });
+      $('#topAvatar').addEventListener('click',()=>{if(!authUser)$('#signInBtn').click()});
+      $('#signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(error){console.error(error);showToast('登出失敗，請稍後重試。')}});
+      onAuthStateChanged(auth,user=>{
+        updateAuthUI(user);currentUserId=user?.uid||null;
+        myTasks=JSON.parse(localStorage.getItem('classmateMine:'+((user&&user.uid)||'guest'))||'[]');
+        posted=JSON.parse(localStorage.getItem('classmatePosted:'+((user&&user.uid)||'guest'))||'[]');
+        render();
+      });
+      try {
+        const result=await getRedirectResult(auth);
+        if(result?.user){updateAuthUI(result.user);currentUserId=result.user.uid;showToast('Google 登入成功，歡迎回來！')}
+      } catch(error) {
+        console.error('Google redirect result failed',error);
+        const messages={
+          'auth/unauthorized-domain':'登入來源或回跳網域未授權。請確認使用 GitHub Pages 網址，且 Firebase 已授權 youlinu0.github.io。',
+          'auth/operation-not-allowed':'Firebase 尚未啟用 Google 登入提供者。',
+          'auth/redirect-cancelled-by-user':'登入已取消。',
+          'auth/network-request-failed':'網路連線失敗，請重新載入後再試。'
+        };
+        showToast(messages[error.code]||'Google 登入未完成：'+(error.code||'未知錯誤'));
+      }
+    } catch(error) { console.error('Firebase initialization failed',error); showToast('Firebase 登入模組載入失敗；請使用 HTTPS 網站網址。'); }
+  }
   render();updateAuthUI(null);startFirebaseAuth();
 </script>
 </body>
